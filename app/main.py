@@ -3,6 +3,7 @@ from datetime import datetime
 
 from fetch_news import fetch_news
 from classify_news import classify_article
+from source_quality import check_source_quality
 from summarize import summarize_article
 from telegram_sender import send_message
 
@@ -54,6 +55,10 @@ async def run():
 
     for article in articles:
         if not article["title"]:
+            continue
+
+        source_quality = check_source_quality(article)
+        if not source_quality["is_allowed"]:
             continue
 
         result = classify_article(article)
