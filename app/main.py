@@ -3,6 +3,7 @@ from datetime import datetime
 
 from classify_news import classify_article, is_high_quality_good_news
 from deduplication import is_duplicate_article
+from facebook_post import generate_facebook_post
 from fetch_news import fetch_additional_news, fetch_news
 from humanity_index import calculate_humanity_index
 from source_quality import check_source_quality
@@ -62,6 +63,11 @@ def build_news_item(article, summary, source_quality):
 
 def format_humanity_index_message(index_result):
     return f"Сьогоднішній індекс віри в людство: {float(index_result['index']):.1f}/10"
+
+
+def format_facebook_post_message(good_articles, humanity_index):
+    post = generate_facebook_post(good_articles, humanity_index.get("index"))
+    return f"📝 Готовий пост для Facebook\n\n{post}"
 
 
 def classification_score(result):
@@ -124,6 +130,7 @@ async def run():
 
     humanity_index = calculate_humanity_index(good_articles[:5])
     await send_message(format_humanity_index_message(humanity_index))
+    await send_message(format_facebook_post_message(good_articles[:5], humanity_index))
 
     for article in good_articles[:5]:
         await send_message(format_article_message(article, article["summary"]))

@@ -13,6 +13,7 @@ Telegram bot that collects positive world news and sends uplifting stories daily
 - Evaluates candidate stories by humanity, hope, warmth, credibility, and tragedy level
 - Rejects toxic/ragebait content
 - Creates warm summaries
+- Generates a ready-to-publish Ukrainian Facebook post for a group
 - Sends results to Telegram with category, title, summary, source trust level, source, original link, publish date, and country when available
 
 ## Trusted Sources
