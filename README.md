@@ -62,3 +62,7 @@ NEWS_COUNTRY=us
 ```bash
 python app/main.py
 ```
+
+## Troubleshooting
+
+If NewsAPI returns `401 Unauthorized`, the `NEWS_API_KEY` value was loaded but rejected. Check that the key is copied from your NewsAPI account, active, and not expired or revoked.

@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 
 import requests
 from dotenv import load_dotenv
+from requests import HTTPError
 
 load_dotenv()
 
@@ -44,8 +45,11 @@ def detect_country(article):
 
 
 def fetch_news():
+    if not NEWS_API_KEY:
+        raise RuntimeError("NEWS_API_KEY is missing. Add it to your .env file.")
+
     params = {
-        "apiKey": NEWS_API_KEY,
+        "apiKey": NEWS_API_KEY.strip(),
         "language": "en",
         "pageSize": 20,
     }
@@ -53,8 +57,26 @@ def fetch_news():
     if NEWS_COUNTRY:
         params["country"] = NEWS_COUNTRY
 
-    response = requests.get(URL, params=params)
-    response.raise_for_status()
+    response = requests.get(URL, params=params, timeout=20)
+
+    try:
+        response.raise_for_status()
+    except HTTPError as error:
+        message = "NewsAPI request failed"
+
+        try:
+            error_data = response.json()
+            api_message = error_data.get("message")
+            api_code = error_data.get("code")
+            if api_message:
+                message = f"{message}: {api_message}"
+            if api_code:
+                message = f"{message} ({api_code})"
+        except ValueError:
+            if response.text:
+                message = f"{message}: {response.text[:200]}"
+
+        raise RuntimeError(message) from error
 
     data = response.json()
 
