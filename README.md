@@ -9,7 +9,7 @@ Telegram bot that collects positive world news and sends uplifting stories daily
 - Uses AI to filter humane/uplifting stories
 - Rejects toxic/ragebait content
 - Creates warm summaries
-- Sends results to Telegram with title, summary, source, original link, publish date, and country when available
+- Sends results to Telegram with title, summary, source trust level, source, original link, publish date, and country when available
 
 ## Trusted Sources
 
@@ -24,6 +24,9 @@ The bot processes news only from a trusted allowlist:
 - Science
 
 It rejects unknown aggregators, clickbait-heavy sources, anonymous blogs, and AI-generated news sites without a clear editorial source.
+
+Trusted allowlist sources are shown with `⭐⭐⭐⭐⭐ Висока надійність`.
+Other named sources with a public URL can pass as `⭐⭐⭐ Середня надійність`.
 
 ## Setup
 

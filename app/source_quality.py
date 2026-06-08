@@ -53,29 +53,55 @@ def is_trusted_domain(domain):
     return any(domain == trusted or domain.endswith(f".{trusted}") for trusted in TRUSTED_DOMAINS)
 
 
+def build_quality_result(is_allowed, stars, label, reason):
+    return {
+        "is_allowed": is_allowed,
+        "stars": stars,
+        "label": label,
+        "display": f"{'⭐' * stars} {label}",
+        "reason": reason,
+    }
+
+
 def check_source_quality(article):
     source = normalize(article.get("source"))
     domain = get_domain(article.get("url"))
 
     if not source and not domain:
-        return {
-            "is_allowed": False,
-            "reason": "Missing source and URL",
-        }
+        return build_quality_result(
+            False,
+            1,
+            "Низька надійність",
+            "Missing source and URL",
+        )
 
     if any(keyword in source or keyword in domain for keyword in UNWANTED_SOURCE_KEYWORDS):
-        return {
-            "is_allowed": False,
-            "reason": "Source matches unwanted quality pattern",
-        }
+        return build_quality_result(
+            False,
+            1,
+            "Низька надійність",
+            "Source matches unwanted quality pattern",
+        )
 
     if source in TRUSTED_SOURCE_NAMES or is_trusted_domain(domain):
-        return {
-            "is_allowed": True,
-            "reason": "Trusted editorial source",
-        }
+        return build_quality_result(
+            True,
+            5,
+            "Висока надійність",
+            "Trusted editorial source",
+        )
 
-    return {
-        "is_allowed": False,
-        "reason": "Source is not in trusted allowlist",
-    }
+    if source and domain:
+        return build_quality_result(
+            True,
+            3,
+            "Середня надійність",
+            "Named source with a public URL",
+        )
+
+    return build_quality_result(
+        False,
+        2,
+        "Низька надійність",
+        "Source is incomplete",
+    )

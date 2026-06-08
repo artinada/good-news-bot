@@ -24,12 +24,15 @@ def format_article_message(article, summary):
     if article.get("country"):
         country_line = f"\nКраїна: {article['country']}"
 
+    trust_line = article.get("source_trust", "Надійність джерела: Unknown")
+
     return f"""
 🌿 {article['title']}
 
 Короткий переказ:
 {summary}
 
+{trust_line}
 Джерело: {article.get('source') or 'Unknown'}
 Оригінал:
 {article.get('url') or 'Unknown'}
@@ -37,11 +40,13 @@ def format_article_message(article, summary):
 """
 
 
-def build_news_item(article, summary):
+def build_news_item(article, summary, source_quality):
     return {
         "title": article.get("title"),
         "summary": summary,
         "source": article.get("source"),
+        "source_trust": source_quality.get("display"),
+        "source_trust_reason": source_quality.get("reason"),
         "url": article.get("url"),
         "published_at": article.get("published_at"),
         "country": article.get("country"),
@@ -65,7 +70,7 @@ async def run():
 
         if result["is_good"] and result["score"] >= 7:
             summary = summarize_article(article)
-            good_articles.append(build_news_item(article, summary))
+            good_articles.append(build_news_item(article, summary, source_quality))
 
     if not good_articles:
         await send_message(
