@@ -8,10 +8,12 @@ Telegram bot that collects positive world news and sends uplifting stories daily
 - Checks source quality before AI processing
 - Removes duplicate stories by normalized URL and similar titles
 - Searches science, environmental, and volunteering topics when fewer than three good stories are found
+- Prioritizes animal stories, scientific breakthroughs, and everyday people helping others
 - Uses AI to filter humane/uplifting stories
 - Calculates a daily faith-in-humanity index from AI quality criteria
 - Evaluates candidate stories by humanity, hope, warmth, credibility, and tragedy level
 - Rejects toxic/ragebait content
+- De-prioritizes corporate PR, product launches, awards, partnerships, and vague business positivity
 - Creates warm summaries
 - Generates a ready-to-publish Ukrainian Facebook post for a group
 - Sends results to Telegram with category, title, summary, source trust level, source, original link, publish date, and country when available

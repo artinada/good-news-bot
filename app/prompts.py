@@ -8,17 +8,22 @@ Accept stories about:
 - people helping strangers
 - communities supporting each other
 - rescue of animals
+- animal welfare, wildlife recovery, shelters, and everyday animal rescue
+- major scientific breakthroughs, especially if they help people directly
 - scientific or medical progress that helps people
 - environmental recovery
 - education, inclusion, accessibility
 - peaceful cooperation
 - creative human solutions to real problems
+- ordinary people doing practical good, not only institutions or brands
 
 Reject:
 - politics, elections, party conflicts
 - war, violence, crime, disasters
 - celebrity gossip
 - marketing/PR disguised as news
+- corporate social responsibility posts with weak human impact
+- product launches, funding announcements, partnerships, or awards framed as good news
 - tragedy-based positivity
 - stories where the main emotional hook is suffering
 - vague “positive” business news without human impact

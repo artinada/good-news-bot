@@ -30,9 +30,12 @@ UNWANTED_SOURCE_KEYWORDS = {
     "anonymous",
     "blog",
     "clickbait",
+    "corporate",
     "daily buzz",
     "generated",
     "gossip",
+    "press release",
+    "pr newswire",
     "rumor",
     "viral",
 }

@@ -11,6 +11,48 @@ from summarize import summarize_article
 from telegram_sender import send_message
 
 
+PREFERRED_CATEGORIES = {
+    "Animals": 3,
+    "Science": 3,
+    "Health": 2,
+    "Community": 2,
+    "Kindness": 2,
+    "Environment": 1,
+    "Education": 1,
+}
+
+PREFERRED_TEXT_KEYWORDS = {
+    "animal": 2,
+    "breakthrough": 2,
+    "community": 1,
+    "discovered": 2,
+    "helped": 1,
+    "people": 1,
+    "rescue": 2,
+    "research": 2,
+    "scientist": 2,
+    "shelter": 2,
+    "stranger": 2,
+    "volunteer": 2,
+    "wildlife": 2,
+}
+
+CORPORATE_PR_KEYWORDS = {
+    "award",
+    "brand",
+    "business",
+    "company",
+    "corporate",
+    "funding",
+    "launch",
+    "market",
+    "partnership",
+    "press release",
+    "product",
+    "startup",
+}
+
+
 def format_published_at(value):
     if not value:
         return "Unknown"
@@ -84,6 +126,30 @@ def classification_score(result):
     return round(sum(scores) / len(scores), 1)
 
 
+def content_priority_score(news_item):
+    category = news_item.get("category") or ""
+    text = " ".join([
+        news_item.get("title") or "",
+        news_item.get("summary") or "",
+    ]).lower()
+
+    score = PREFERRED_CATEGORIES.get(category, 0)
+    score += sum(weight for keyword, weight in PREFERRED_TEXT_KEYWORDS.items() if keyword in text)
+    score -= sum(2 for keyword in CORPORATE_PR_KEYWORDS if keyword in text)
+    score += news_item.get("classification_score", 0) / 10
+    return score
+
+
+def prioritize_good_articles(good_articles):
+    good_articles.sort(
+        key=lambda article: (
+            content_priority_score(article),
+            article.get("classification_score", 0),
+        ),
+        reverse=True,
+    )
+
+
 def process_articles(articles, good_articles, seen_urls, seen_titles, target_count=5):
     for article in articles:
         if len(good_articles) >= target_count:
@@ -127,6 +193,8 @@ async def run():
             "Сьогодні не знайшлося достатньо теплих новин 🌙"
         )
         return
+
+    prioritize_good_articles(good_articles)
 
     humanity_index = calculate_humanity_index(good_articles[:5])
     await send_message(format_humanity_index_message(humanity_index))

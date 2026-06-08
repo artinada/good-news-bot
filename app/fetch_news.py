@@ -14,9 +14,12 @@ TOP_HEADLINES_URL = "https://newsapi.org/v2/top-headlines"
 EVERYTHING_URL = "https://newsapi.org/v2/everything"
 
 FALLBACK_TOPICS = [
-    "science",
-    "environment",
-    "volunteering OR charity OR community support",
+    "animal rescue OR wildlife recovery OR animal shelter",
+    "scientific breakthrough OR medical breakthrough",
+    "science helps people OR researchers developed treatment",
+    "ordinary people helping strangers",
+    "community volunteers OR local heroes OR mutual aid",
+    "environmental recovery OR conservation success",
 ]
 
 COUNTRY_BY_CODE = {
