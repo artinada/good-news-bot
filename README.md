@@ -10,6 +10,7 @@ Telegram bot that collects positive world news and sends uplifting stories daily
 - Searches science, environmental, and volunteering topics when fewer than three good stories are found
 - Uses AI to filter humane/uplifting stories
 - Calculates a daily faith-in-humanity index from AI quality criteria
+- Evaluates candidate stories by humanity, hope, warmth, credibility, and tragedy level
 - Rejects toxic/ragebait content
 - Creates warm summaries
 - Sends results to Telegram with title, summary, source trust level, source, original link, publish date, and country when available

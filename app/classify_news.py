@@ -40,6 +40,11 @@ Description:
     except Exception:
         return {
             "is_good": False,
-            "score": 0,
+            "category": "Other",
+            "humanity_score": 0,
+            "hope_score": 0,
+            "warmth_score": 0,
+            "credibility_score": 0,
+            "tragedy_level": 10,
             "reason": "Parsing failed"
         }

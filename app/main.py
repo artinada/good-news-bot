@@ -59,6 +59,31 @@ def format_humanity_index_message(index_result):
     return f"Сьогоднішній індекс віри в людство: {float(index_result['index']):.1f}/10"
 
 
+def classification_score(result):
+    scores = [
+        result.get("humanity_score"),
+        result.get("hope_score"),
+        result.get("warmth_score"),
+        result.get("credibility_score"),
+        10 - result.get("tragedy_level", 10),
+    ]
+    scores = [score for score in scores if score is not None]
+    if not scores:
+        return 0
+    return round(sum(scores) / len(scores), 1)
+
+
+def is_good_result(result):
+    return (
+        result.get("is_good") is True
+        and result.get("humanity_score", 0) >= 7
+        and result.get("hope_score", 0) >= 7
+        and result.get("warmth_score", 0) >= 6
+        and result.get("credibility_score", 0) >= 6
+        and result.get("tragedy_level", 10) <= 4
+    )
+
+
 def process_articles(articles, good_articles, seen_urls, seen_titles, target_count=5):
     for article in articles:
         if len(good_articles) >= target_count:
@@ -76,10 +101,11 @@ def process_articles(articles, good_articles, seen_urls, seen_titles, target_cou
 
         result = classify_article(article)
 
-        if result["is_good"] and result["score"] >= 7:
+        if is_good_result(result):
             summary = summarize_article(article)
             news_item = build_news_item(article, summary, source_quality)
-            news_item["classification_score"] = result.get("score")
+            news_item["classification_score"] = classification_score(result)
+            news_item["category"] = result.get("category")
             good_articles.append(news_item)
 
 
