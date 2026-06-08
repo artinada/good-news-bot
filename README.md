@@ -8,7 +8,7 @@ Telegram bot that collects positive world news and sends uplifting stories daily
 - Uses AI to filter humane/uplifting stories
 - Rejects toxic/ragebait content
 - Creates warm summaries
-- Sends results to Telegram
+- Sends results to Telegram with title, summary, source, original link, publish date, and country when available
 
 ## Setup
 
@@ -36,6 +36,7 @@ OPENAI_API_KEY=your_openai_key
 NEWS_API_KEY=your_newsapi_key
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
+NEWS_COUNTRY=us
 ```
 
 ### 4. Run

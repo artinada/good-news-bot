@@ -16,6 +16,12 @@ Title:
 Description:
 {article['description']}
 
+Source:
+{article.get('source')}
+
+Published at:
+{article.get('published_at')}
+
 Requirements:
 - warm tone
 - 2-3 sentences
