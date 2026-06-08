@@ -13,7 +13,7 @@ Telegram bot that collects positive world news and sends uplifting stories daily
 - Evaluates candidate stories by humanity, hope, warmth, credibility, and tragedy level
 - Rejects toxic/ragebait content
 - Creates warm summaries
-- Sends results to Telegram with title, summary, source trust level, source, original link, publish date, and country when available
+- Sends results to Telegram with category, title, summary, source trust level, source, original link, publish date, and country when available
 
 ## Trusted Sources
 

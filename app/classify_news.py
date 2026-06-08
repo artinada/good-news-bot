@@ -9,6 +9,17 @@ load_dotenv()
 client = OpenAI()
 
 
+def is_high_quality_good_news(result):
+    return (
+        result.get("is_good") is True
+        and result.get("humanity_score", 0) >= 7
+        and result.get("hope_score", 0) >= 7
+        and result.get("warmth_score", 0) >= 6
+        and result.get("credibility_score", 0) >= 6
+        and result.get("tragedy_level", 10) <= 4
+    )
+
+
 def classify_article(article):
     content = f"""
 Title: {article['title']}

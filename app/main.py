@@ -1,9 +1,9 @@
 import asyncio
 from datetime import datetime
 
+from classify_news import classify_article, is_high_quality_good_news
 from deduplication import is_duplicate_article
 from fetch_news import fetch_additional_news, fetch_news
-from classify_news import classify_article
 from humanity_index import calculate_humanity_index
 from source_quality import check_source_quality
 from summarize import summarize_article
@@ -26,19 +26,23 @@ def format_article_message(article, summary):
     if article.get("country"):
         country_line = f"\nКраїна: {article['country']}"
 
+    category = article.get("category") or "Good news"
+    source_name = article.get("source") or article.get("source_name") or "Unknown source"
+    published_at = format_published_at(article.get("published_at"))
     trust_line = article.get("source_trust", "Надійність джерела: Unknown")
 
     return f"""
-🌿 {article['title']}
+🌿 {category}
+
+{article['title']}
 
 Короткий переказ:
 {summary}
 
 {trust_line}
-Джерело: {article.get('source') or 'Unknown'}
-Оригінал:
-{article.get('url') or 'Unknown'}
-Дата публікації: {format_published_at(article.get('published_at'))}{country_line}
+📰 Source: {source_name}
+📅 Date: {published_at}
+🔗 {article.get('url') or 'Unknown'}{country_line}
 """
 
 
@@ -52,6 +56,7 @@ def build_news_item(article, summary, source_quality):
         "url": article.get("url"),
         "published_at": article.get("published_at"),
         "country": article.get("country"),
+        "category": article.get("category"),
     }
 
 
@@ -73,17 +78,6 @@ def classification_score(result):
     return round(sum(scores) / len(scores), 1)
 
 
-def is_good_result(result):
-    return (
-        result.get("is_good") is True
-        and result.get("humanity_score", 0) >= 7
-        and result.get("hope_score", 0) >= 7
-        and result.get("warmth_score", 0) >= 6
-        and result.get("credibility_score", 0) >= 6
-        and result.get("tragedy_level", 10) <= 4
-    )
-
-
 def process_articles(articles, good_articles, seen_urls, seen_titles, target_count=5):
     for article in articles:
         if len(good_articles) >= target_count:
@@ -101,11 +95,11 @@ def process_articles(articles, good_articles, seen_urls, seen_titles, target_cou
 
         result = classify_article(article)
 
-        if is_good_result(result):
+        if is_high_quality_good_news(result):
             summary = summarize_article(article)
+            article["category"] = result.get("category", "Good news")
             news_item = build_news_item(article, summary, source_quality)
             news_item["classification_score"] = classification_score(result)
-            news_item["category"] = result.get("category")
             good_articles.append(news_item)
 
 
