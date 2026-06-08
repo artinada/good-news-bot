@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
 
+from deduplication import is_duplicate_article
 from fetch_news import fetch_additional_news, fetch_news
 from classify_news import classify_article
 from humanity_index import calculate_humanity_index
@@ -58,11 +59,7 @@ def format_humanity_index_message(index_result):
     return f"Сьогоднішній індекс віри в людство: {float(index_result['index']):.1f}/10"
 
 
-def article_key(article):
-    return article.get("url") or article.get("title")
-
-
-def process_articles(articles, good_articles, seen_article_keys, target_count=5):
+def process_articles(articles, good_articles, seen_urls, seen_titles, target_count=5):
     for article in articles:
         if len(good_articles) >= target_count:
             break
@@ -70,11 +67,8 @@ def process_articles(articles, good_articles, seen_article_keys, target_count=5)
         if not article["title"]:
             continue
 
-        key = article_key(article)
-        if not key or key in seen_article_keys:
+        if is_duplicate_article(article, seen_urls, seen_titles):
             continue
-
-        seen_article_keys.add(key)
 
         source_quality = check_source_quality(article)
         if not source_quality["is_allowed"]:
@@ -93,13 +87,14 @@ async def run():
     articles = fetch_news()
 
     good_articles = []
-    seen_article_keys = set()
+    seen_urls = set()
+    seen_titles = set()
 
-    process_articles(articles, good_articles, seen_article_keys)
+    process_articles(articles, good_articles, seen_urls, seen_titles)
 
     if len(good_articles) < 3:
         additional_articles = fetch_additional_news()
-        process_articles(additional_articles, good_articles, seen_article_keys)
+        process_articles(additional_articles, good_articles, seen_urls, seen_titles)
 
     if not good_articles:
         await send_message(
