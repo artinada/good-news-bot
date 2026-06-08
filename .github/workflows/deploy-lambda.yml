@@ -1,0 +1,43 @@
+name: Deploy Good News Bot to AWS Lambda
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Lambda package in AWS Lambda Docker image
+        run: |
+          rm -rf package good-news-bot.zip
+          mkdir package
+
+          docker run --rm \
+            --entrypoint /bin/bash \
+            -v "$PWD":/var/task \
+            public.ecr.aws/lambda/python:3.12 \
+            -c "cd /var/task && pip install -r requirements.txt -t package && cp -r app/* package/"
+
+          cd package
+          zip -r ../good-news-bot.zip .
+          cd ..
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy ZIP to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
+            --zip-file fileb://good-news-bot.zip
