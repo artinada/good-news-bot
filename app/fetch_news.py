@@ -10,7 +10,14 @@ load_dotenv()
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 NEWS_COUNTRY = os.getenv("NEWS_COUNTRY")
 
-URL = "https://newsapi.org/v2/top-headlines"
+TOP_HEADLINES_URL = "https://newsapi.org/v2/top-headlines"
+EVERYTHING_URL = "https://newsapi.org/v2/everything"
+
+FALLBACK_TOPICS = [
+    "science",
+    "environment",
+    "volunteering OR charity OR community support",
+]
 
 COUNTRY_BY_CODE = {
     "au": "Australia",
@@ -44,20 +51,24 @@ def detect_country(article):
     return COUNTRY_BY_CODE.get(country_code)
 
 
-def fetch_news():
-    if not NEWS_API_KEY:
-        raise RuntimeError("NEWS_API_KEY is missing. Add it to your .env file.")
+def normalize_articles(raw_articles):
+    articles = []
 
-    params = {
-        "apiKey": NEWS_API_KEY.strip(),
-        "language": "en",
-        "pageSize": 20,
-    }
+    for article in raw_articles:
+        articles.append({
+            "title": article.get("title"),
+            "description": article.get("description"),
+            "source": (article.get("source") or {}).get("name"),
+            "url": article.get("url"),
+            "published_at": article.get("publishedAt"),
+            "country": detect_country(article),
+        })
 
-    if NEWS_COUNTRY:
-        params["country"] = NEWS_COUNTRY
+    return articles
 
-    response = requests.get(URL, params=params, timeout=20)
+
+def request_news(url, params):
+    response = requests.get(url, params=params, timeout=20)
 
     try:
         response.raise_for_status()
@@ -78,18 +89,43 @@ def fetch_news():
 
         raise RuntimeError(message) from error
 
-    data = response.json()
+    return response.json()
+
+
+def fetch_news():
+    if not NEWS_API_KEY:
+        raise RuntimeError("NEWS_API_KEY is missing. Add it to your .env file.")
+
+    params = {
+        "apiKey": NEWS_API_KEY.strip(),
+        "language": "en",
+        "pageSize": 20,
+    }
+
+    if NEWS_COUNTRY:
+        params["country"] = NEWS_COUNTRY
+
+    data = request_news(TOP_HEADLINES_URL, params)
+
+    return normalize_articles(data.get("articles", []))
+
+
+def fetch_additional_news():
+    if not NEWS_API_KEY:
+        raise RuntimeError("NEWS_API_KEY is missing. Add it to your .env file.")
 
     articles = []
 
-    for article in data.get("articles", []):
-        articles.append({
-            "title": article.get("title"),
-            "description": article.get("description"),
-            "source": (article.get("source") or {}).get("name"),
-            "url": article.get("url"),
-            "published_at": article.get("publishedAt"),
-            "country": detect_country(article),
-        })
+    for topic in FALLBACK_TOPICS:
+        params = {
+            "apiKey": NEWS_API_KEY.strip(),
+            "q": topic,
+            "language": "en",
+            "pageSize": 10,
+            "sortBy": "publishedAt",
+        }
+
+        data = request_news(EVERYTHING_URL, params)
+        articles.extend(normalize_articles(data.get("articles", [])))
 
     return articles
