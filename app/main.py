@@ -3,6 +3,7 @@ from datetime import datetime
 
 from fetch_news import fetch_additional_news, fetch_news
 from classify_news import classify_article
+from humanity_index import calculate_humanity_index
 from source_quality import check_source_quality
 from summarize import summarize_article
 from telegram_sender import send_message
@@ -53,6 +54,10 @@ def build_news_item(article, summary, source_quality):
     }
 
 
+def format_humanity_index_message(index_result):
+    return f"Сьогоднішній індекс віри в людство: {float(index_result['index']):.1f}/10"
+
+
 def article_key(article):
     return article.get("url") or article.get("title")
 
@@ -79,7 +84,9 @@ def process_articles(articles, good_articles, seen_article_keys, target_count=5)
 
         if result["is_good"] and result["score"] >= 7:
             summary = summarize_article(article)
-            good_articles.append(build_news_item(article, summary, source_quality))
+            news_item = build_news_item(article, summary, source_quality)
+            news_item["classification_score"] = result.get("score")
+            good_articles.append(news_item)
 
 
 async def run():
@@ -99,6 +106,9 @@ async def run():
             "Сьогодні не знайшлося достатньо теплих новин 🌙"
         )
         return
+
+    humanity_index = calculate_humanity_index(good_articles[:5])
+    await send_message(format_humanity_index_message(humanity_index))
 
     for article in good_articles[:5]:
         await send_message(format_article_message(article, article["summary"]))
