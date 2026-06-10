@@ -17,7 +17,7 @@ def fallback_humanity_index(good_articles):
     return round(sum(scores) / len(scores), 1)
 
 
-def generate_facebook_post(good_articles, humanity_index=None):
+def generate_facebook_post(good_articles, humanity_index=None, facts=None):
     lines = [
         "🌍 Добрі новини дня",
         "",
@@ -38,5 +38,11 @@ def generate_facebook_post(good_articles, humanity_index=None):
 
     if humanity_index is not None:
         lines.append(f"Індекс віри в людство: {float(humanity_index):.1f}/10")
+
+    if facts:
+        lines.extend([
+            "",
+            facts.strip(),
+        ])
 
     return "\n".join(lines).strip()

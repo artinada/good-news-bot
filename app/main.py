@@ -6,6 +6,7 @@ from deduplication import is_duplicate_article
 from facebook_post import generate_facebook_post
 from fetch_news import fetch_additional_news, fetch_news
 from humanity_index import calculate_humanity_index
+from interesting_facts import generate_interesting_facts
 from source_quality import check_source_quality
 from summarize import summarize_article
 from telegram_sender import send_message
@@ -107,8 +108,12 @@ def format_humanity_index_message(index_result):
     return f"Сьогоднішній індекс віри в людство: {float(index_result['index']):.1f}/10"
 
 
-def format_facebook_post_message(good_articles, humanity_index):
-    post = generate_facebook_post(good_articles, humanity_index.get("index"))
+def format_interesting_facts_message(facts):
+    return facts
+
+
+def format_facebook_post_message(good_articles, humanity_index, facts=None):
+    post = generate_facebook_post(good_articles, humanity_index.get("index"), facts=facts)
     return f"📝 Готовий пост для Facebook\n\n{post}"
 
 
@@ -172,6 +177,11 @@ def process_articles(articles, good_articles, seen_urls, seen_titles, target_cou
             article["category"] = result.get("category", "Good news")
             news_item = build_news_item(article, summary, source_quality)
             news_item["classification_score"] = classification_score(result)
+            news_item["humanity_score"] = result.get("humanity_score")
+            news_item["hope_score"] = result.get("hope_score")
+            news_item["warmth_score"] = result.get("warmth_score")
+            news_item["credibility_score"] = result.get("credibility_score")
+            news_item["tragedy_level"] = result.get("tragedy_level")
             good_articles.append(news_item)
 
 
@@ -197,8 +207,11 @@ async def run():
     prioritize_good_articles(good_articles)
 
     humanity_index = calculate_humanity_index(good_articles[:5])
+    interesting_facts = generate_interesting_facts()
+
     await send_message(format_humanity_index_message(humanity_index))
-    await send_message(format_facebook_post_message(good_articles[:5], humanity_index))
+    await send_message(format_interesting_facts_message(interesting_facts))
+    await send_message(format_facebook_post_message(good_articles[:5], humanity_index, facts=interesting_facts))
 
     for article in good_articles[:5]:
         await send_message(format_article_message(article, article["summary"]))
