@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import os
 from datetime import datetime
 
 from classify_news import classify_article, is_high_quality_good_news
@@ -11,6 +13,14 @@ from source_quality import check_source_quality
 from summarize import summarize_article
 from telegram_sender import send_message
 
+
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
+logger = logging.getLogger(__name__)
+
+MAX_NEWS = int(os.getenv("MAX_NEWS", "5"))
+MIN_GOOD_NEWS = int(os.getenv("MIN_GOOD_NEWS", "3"))
+MAX_PRIMARY_CANDIDATES = int(os.getenv("MAX_PRIMARY_CANDIDATES", "12"))
+MAX_FALLBACK_CANDIDATES = int(os.getenv("MAX_FALLBACK_CANDIDATES", "20"))
 
 PREFERRED_CATEGORIES = {
     "Animals": 3,
@@ -155,9 +165,14 @@ def prioritize_good_articles(good_articles):
     )
 
 
-def process_articles(articles, good_articles, seen_urls, seen_titles, target_count=5):
+def process_articles(articles, good_articles, seen_urls, seen_titles, target_count=MAX_NEWS, max_candidates=None):
+    processed_candidates = 0
+
     for article in articles:
         if len(good_articles) >= target_count:
+            break
+
+        if max_candidates is not None and processed_candidates >= max_candidates:
             break
 
         if not article["title"]:
@@ -165,6 +180,8 @@ def process_articles(articles, good_articles, seen_urls, seen_titles, target_cou
 
         if is_duplicate_article(article, seen_urls, seen_titles):
             continue
+
+        processed_candidates += 1
 
         source_quality = check_source_quality(article)
         if not source_quality["is_allowed"]:
@@ -184,21 +201,49 @@ def process_articles(articles, good_articles, seen_urls, seen_titles, target_cou
             news_item["tragedy_level"] = result.get("tragedy_level")
             good_articles.append(news_item)
 
+    return processed_candidates
+
 
 async def run():
+    logger.info("GoodNewsBot run started")
     articles = fetch_news()
+    logger.info("Fetched %s primary articles", len(articles))
 
     good_articles = []
     seen_urls = set()
     seen_titles = set()
 
-    process_articles(articles, good_articles, seen_urls, seen_titles)
+    primary_processed = process_articles(
+        articles,
+        good_articles,
+        seen_urls,
+        seen_titles,
+        max_candidates=MAX_PRIMARY_CANDIDATES,
+    )
+    logger.info(
+        "Primary processing complete: processed=%s selected=%s",
+        primary_processed,
+        len(good_articles),
+    )
 
-    if len(good_articles) < 3:
+    if len(good_articles) < MIN_GOOD_NEWS:
         additional_articles = fetch_additional_news()
-        process_articles(additional_articles, good_articles, seen_urls, seen_titles)
+        logger.info("Fetched %s fallback articles", len(additional_articles))
+        fallback_processed = process_articles(
+            additional_articles,
+            good_articles,
+            seen_urls,
+            seen_titles,
+            max_candidates=MAX_FALLBACK_CANDIDATES,
+        )
+        logger.info(
+            "Fallback processing complete: processed=%s selected=%s",
+            fallback_processed,
+            len(good_articles),
+        )
 
     if not good_articles:
+        logger.info("No good articles selected; sending empty-day message")
         await send_message(
             "Сьогодні не знайшлося достатньо теплих новин 🌙"
         )
@@ -206,15 +251,18 @@ async def run():
 
     prioritize_good_articles(good_articles)
 
-    humanity_index = calculate_humanity_index(good_articles[:5])
+    humanity_index = calculate_humanity_index(good_articles[:MAX_NEWS])
     interesting_facts = generate_interesting_facts()
 
+    logger.info("Sending %s selected articles", min(len(good_articles), MAX_NEWS))
     await send_message(format_humanity_index_message(humanity_index))
     await send_message(format_interesting_facts_message(interesting_facts))
-    await send_message(format_facebook_post_message(good_articles[:5], humanity_index, facts=interesting_facts))
+    await send_message(format_facebook_post_message(good_articles[:MAX_NEWS], humanity_index, facts=interesting_facts))
 
-    for article in good_articles[:5]:
+    for article in good_articles[:MAX_NEWS]:
         await send_message(format_article_message(article, article["summary"]))
+
+    logger.info("GoodNewsBot run finished")
 
 
 if __name__ == "__main__":

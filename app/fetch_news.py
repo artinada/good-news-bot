@@ -9,6 +9,9 @@ load_dotenv()
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 NEWS_COUNTRY = os.getenv("NEWS_COUNTRY")
+NEWS_PAGE_SIZE = int(os.getenv("NEWS_PAGE_SIZE", "10"))
+FALLBACK_PAGE_SIZE = int(os.getenv("FALLBACK_PAGE_SIZE", "5"))
+MAX_FALLBACK_TOPICS = int(os.getenv("MAX_FALLBACK_TOPICS", "4"))
 
 TOP_HEADLINES_URL = "https://newsapi.org/v2/top-headlines"
 EVERYTHING_URL = "https://newsapi.org/v2/everything"
@@ -102,7 +105,7 @@ def fetch_news():
     params = {
         "apiKey": NEWS_API_KEY.strip(),
         "language": "en",
-        "pageSize": 20,
+        "pageSize": NEWS_PAGE_SIZE,
     }
 
     if NEWS_COUNTRY:
@@ -119,12 +122,12 @@ def fetch_additional_news():
 
     articles = []
 
-    for topic in FALLBACK_TOPICS:
+    for topic in FALLBACK_TOPICS[:MAX_FALLBACK_TOPICS]:
         params = {
             "apiKey": NEWS_API_KEY.strip(),
             "q": topic,
             "language": "en",
-            "pageSize": 10,
+            "pageSize": FALLBACK_PAGE_SIZE,
             "sortBy": "publishedAt",
         }
 
