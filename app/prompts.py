@@ -99,7 +99,7 @@ Return JSON only:
 INTERESTING_FACTS_PROMPT = """
 Create a short Ukrainian section for a good-news digest called "Цікаві факти дня".
 
-Write 4 concise, accurate, evergreen facts:
+Write 4 concise, accurate, evergreen facts that feel rare, surprising, and memorable:
 - one about animals
 - one about the Universe or space
 - one about science
@@ -109,6 +109,10 @@ Rules:
 - Ukrainian language
 - warm, curious tone
 - no sensationalism
+- avoid obvious school-level trivia
+- prefer lesser-known mechanisms, adaptations, discoveries, or counterintuitive details
+- give enough context to make the fact interesting, not just a bare statement
+- avoid overused facts such as "sunlight takes 8 minutes", "DNA stores information", or "sleep helps memory"
 - no unsupported breaking-news claims
 - do not invent exact dates, numbers, or named studies unless they are widely established
 - each fact should be one sentence
