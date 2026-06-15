@@ -88,7 +88,7 @@ def format_article_message(article, summary):
     return f"""
 🌿 {category}
 
-{article['title']}
+{article.get('display_title') or article['title']}
 
 Короткий переказ:
 {summary}
@@ -103,6 +103,7 @@ def format_article_message(article, summary):
 def build_news_item(article, summary, source_quality):
     return {
         "title": article.get("title"),
+        "display_title": article.get("display_title") or article.get("title"),
         "summary": summary,
         "source": article.get("source"),
         "source_trust": source_quality.get("display"),
@@ -190,9 +191,10 @@ def process_articles(articles, good_articles, seen_urls, seen_titles, target_cou
         result = classify_article(article)
 
         if is_high_quality_good_news(result):
-            summary = summarize_article(article)
+            summary_result = summarize_article(article)
             article["category"] = result.get("category", "Good news")
-            news_item = build_news_item(article, summary, source_quality)
+            article["display_title"] = summary_result["title"]
+            news_item = build_news_item(article, summary_result["summary"], source_quality)
             news_item["classification_score"] = classification_score(result)
             news_item["humanity_score"] = result.get("humanity_score")
             news_item["hope_score"] = result.get("hope_score")

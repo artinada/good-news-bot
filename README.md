@@ -12,10 +12,12 @@ Telegram bot that collects positive world news and sends uplifting stories daily
 - Uses AI to filter humane/uplifting stories
 - Calculates a daily faith-in-humanity index from weighted AI criteria, source trust, diversity, and story volume
 - Adds Ukrainian interesting facts about animals, the Universe, science, and medicine
+- Stores interesting-fact history in AWS SSM Parameter Store to avoid repeating facts
 - Evaluates candidate stories by humanity, hope, warmth, credibility, and tragedy level
 - Rejects toxic/ragebait content
 - De-prioritizes corporate PR, product launches, awards, partnerships, and vague business positivity
 - Creates warm summaries
+- Rewrites news titles into precise Ukrainian non-clickbait titles
 - Generates a ready-to-publish Ukrainian Facebook post for a group
 - Sends results to Telegram with category, title, summary, source trust level, source, original link, publish date, and country when available
 

@@ -25,7 +25,7 @@ def generate_facebook_post(good_articles, humanity_index=None, facts=None):
 
     for index, article in enumerate(good_articles, start=1):
         lines.extend([
-            f"{index}. {article.get('title', 'Без назви')}",
+            f"{index}. {article.get('display_title') or article.get('title', 'Без назви')}",
             "",
             article.get("summary", ""),
             "",

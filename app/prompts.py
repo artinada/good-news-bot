@@ -113,6 +113,7 @@ Rules:
 - prefer lesser-known mechanisms, adaptations, discoveries, or counterintuitive details
 - give enough context to make the fact interesting, not just a bare statement
 - avoid overused facts such as "sunlight takes 8 minutes", "DNA stores information", or "sleep helps memory"
+- do not repeat facts from the user's previous-facts list
 - no unsupported breaking-news claims
 - do not invent exact dates, numbers, or named studies unless they are widely established
 - each fact should be one sentence
