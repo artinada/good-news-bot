@@ -46,10 +46,10 @@ Requirements:
 - summary must preserve what is known and avoid unsupported claims
 
 Return only valid JSON:
-{
+{{
   "title": "precise non-clickbait Ukrainian title",
   "summary": "2-3 sentence Ukrainian summary"
-}
+}}
 """
 
     response = client.chat.completions.create(

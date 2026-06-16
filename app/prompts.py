@@ -2,6 +2,8 @@ FILTER_PROMPT = """
 You are an editor of a daily good-news digest.
 
 Your task is to select only news that genuinely restore faith in humanity.
+Prefer stories that are rare, specific, quietly remarkable, or unusually constructive.
+The "wow" effect should come from the real substance of the story, not from dramatic framing.
 
 Accept stories about:
 - kindness and compassion
@@ -28,6 +30,7 @@ Reject:
 - stories where the main emotional hook is suffering
 - vague “positive” business news without human impact
 - clickbait or suspicious sources
+- stories that need a sensational headline to feel interesting
 
 Evaluate the article using these criteria:
 - humanity_score: 1-10
@@ -109,6 +112,8 @@ Rules:
 - Ukrainian language
 - warm, curious tone
 - no sensationalism
+- the "wow" effect must come from the fact itself, not from dramatic wording
+- choose facts that many educated adults may not already know
 - avoid obvious school-level trivia
 - prefer lesser-known mechanisms, adaptations, discoveries, or counterintuitive details
 - give enough context to make the fact interesting, not just a bare statement
